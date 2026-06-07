@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深夜情绪树洞日记</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- 引入极简图标库 (RemixIcon) -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- 登录/注册屏 -->
+    <div id="auth-screen" class="hidden">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button id="tab-login" class="active">登录</button>
+                <button id="tab-register">注册</button>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div id="login-form">
+                <h2 id="easter-egg-trigger">欢迎回来</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">在深夜，找回属于自己的平静</p>
+                <input type="text" id="login-username" class="wizard-input" placeholder="用户名" autocomplete="off" />
+                <div class="password-input-wrapper">
+                    <input type="password" id="login-password" class="wizard-input password-input" placeholder="密码" />
+                    <button type="button" class="toggle-password-btn" data-target="login-password">
+                        <i class="ri-eye-off-line"></i>
+                    </button>
+                </div>
+                <button id="login-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">登录</button>
+                <p id="login-error" class="error-text hidden"></p>
+                <p class="forgot-password-link" id="show-forgot-password">忘记密码？</p>
+            </div>
+            
+            <!-- 忘记密码表单 -->
+            <div id="forgot-password-form" class="hidden">
+                <h2>找回密码</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">请输入您绑定的手机号</p>
+                <input type="text" id="forgot-username" class="wizard-input" placeholder="用户名" autocomplete="off" />
+                <input type="tel" id="forgot-phone" class="wizard-input" placeholder="绑定的手机号" autocomplete="off" />
+                <button id="reset-password-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">重置密码</button>
+                <p id="forgot-error" class="error-text hidden"></p>
+                <p class="back-to-login-link" id="back-to-login">返回登录</p>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div id="register-form" class="hidden">
+                <h2>创建你的树洞</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">数据仅保存在本地，绝对私密</p>
+                <input type="text" id="reg-username" class="wizard-input" placeholder="设置用户名" autocomplete="off" />
+                <input type="tel" id="reg-phone" class="wizard-input" placeholder="绑定手机号（用于找回密码）" autocomplete="off" />
+                <div class="password-input-wrapper">
+                    <input type="password" id="reg-password" class="wizard-input password-input" placeholder="设置密码" />
+                    <button type="button" class="toggle-password-btn" data-target="reg-password">
+                        <i class="ri-eye-off-line"></i>
+                    </button>
+                </div>
+                <div class="password-input-wrapper">
+                    <input type="password" id="reg-password-confirm" class="wizard-input password-input" placeholder="确认密码" />
+                    <button type="button" class="toggle-password-btn" data-target="reg-password-confirm">
+                        <i class="ri-eye-off-line"></i>
+                    </button>
+                </div>
+                <button id="register-btn" class="primary-btn" style="width: 100%; margin-top: 10px;">注册并登录</button>
+                <p id="reg-error" class="error-text hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 密码锁屏层 -->
+    <div id="lock-screen" class="hidden">
+        <div class="lock-container">
+            <i class="ri-lock-2-line lock-icon"></i>
+            <h2>私人空间</h2>
+            <p>请输入密码以解锁您的情绪树洞</p>
+            <div class="password-input-wrapper lock-password-wrapper">
+                <input type="password" id="password-input" class="password-input" placeholder="输入密码..." />
+                <button type="button" class="toggle-password-btn" data-target="password-input">
+                    <i class="ri-eye-off-line"></i>
+                </button>
+            </div>
+            <button id="unlock-btn">进入</button>
+            <p id="lock-error" class="error-text hidden">密码错误，请重试</p>
+            <p id="forgot-lock-password" class="forgot-password-link" style="margin-top: 15px;">忘记页面密码？</p>
+        </div>
+    </div>
+
+    <!-- 伪装层 (一键隐藏) -->
+    <div id="camouflage-screen" class="hidden">
+        <div class="camouflage-content">
+            <h1>404 Not Found</h1>
+            <p>The requested URL was not found on this server.</p>
+        </div>
+    </div>
+
+    <!-- 治愈语录弹窗 -->
+    <div id="quote-toast" class="hidden">
+        <p id="quote-text"></p>
+    </div>
+
+    <!-- 时光机信封弹出层 -->
+    <div id="letter-popup-modal" class="hidden">
+        <div class="letter-popup-overlay"></div>
+        <div class="letter-popup-container">
+            <div class="letter-envelope" id="letter-envelope">
+                <div class="envelope-front">
+                    <i class="ri-mail-fill envelope-icon"></i>
+                    <h3>有一封来自过去的信</h3>
+                    <p>点击拆开</p>
+                </div>
+                <div class="envelope-paper">
+                    <div class="letter-header" id="letter-popup-date"></div>
+                    <div class="letter-content" id="letter-popup-content"></div>
+                    <button id="close-letter-btn" class="paper-btn">收下这份心意</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主应用容器 -->
+    <div id="app-container">
+        <!-- 侧边栏/底栏导航 -->
+        <nav id="main-nav">
+            <div class="logo">
+                <div class="logo-title">
+                    <i class="ri-moon-clear-line"></i>
+                    <span>深夜树洞</span>
+                </div>
+                <div class="user-profile" id="user-profile">
+                    <i class="ri-user-smile-line"></i>
+                    <span id="current-username-display">未登录</span>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-tab="write"><i class="ri-edit-2-line"></i> <span>夜语随笔</span></li>
+                <li data-tab="history"><i class="ri-book-read-line"></i> <span>时光回响</span></li>
+                <li data-tab="healing"><i class="ri-send-plane-line"></i> <span>时光邮差</span></li>
+                <li data-tab="edu"><i class="ri-lightbulb-flash-line"></i> <span>心事指南</span></li>
+                <li data-tab="settings"><i class="ri-settings-3-line"></i> <span>我的角落</span></li>
+            </ul>
+            <div class="nav-footer">
+                <button id="logout-btn" class="back-btn" style="width: 100%; justify-content: center; margin-bottom: 15px; padding: 10px; background-color: rgba(255,255,255,0.03); border-radius: var(--border-radius);"><i class="ri-logout-box-r-line"></i> 退出登录</button>
+                <span class="hint">按 Esc 一键隐藏</span>
+            </div>
+        </nav>
+
+        <!-- 内容展示区 -->
+        <main id="main-content">
+            <!-- 1. 夜语随笔模块 -->
+            <section id="tab-write" class="tab-pane active">
+                
+                <!-- 分步提问向导区 -->
+                <div id="wizard-container" class="wizard-area">
+                    <div class="wizard-progress" id="wizard-progress">
+                        <div class="wizard-progress-text" id="wizard-progress-text">步骤 1/6</div>
+                        <div class="wizard-progress-dots" aria-hidden="true">
+                            <span class="wizard-dot active" data-step="1"></span>
+                            <span class="wizard-dot" data-step="2"></span>
+                            <span class="wizard-dot" data-step="3"></span>
+                            <span class="wizard-dot" data-step="4"></span>
+                            <span class="wizard-dot" data-step="5"></span>
+                            <span class="wizard-dot" data-step="6"></span>
+                        </div>
+                    </div>
+                    <!-- 第一步：时间 -->
+                    <div class="wizard-step" id="wizard-step-1">
+                        <h2>你要记录的情绪发生在什么时候？</h2>
+                        <div class="wheel-picker-container">
+                            <div class="wheel-picker-group">
+                                <label>日期</label>
+                                <div class="wheel-picker-wrapper">
+                                    <select id="wizard-year" class="wheel-picker">
+                                        <option value="">年</option>
+                                    </select>
+                                    <span class="wheel-separator">年</span>
+                                    <select id="wizard-month" class="wheel-picker">
+                                        <option value=""></option>
+                                    </select>
+                                    <span class="wheel-separator">月</span>
+                                    <select id="wizard-day" class="wheel-picker">
+                                        <option value="">日</option>
+                                    </select>
+                                    <span class="wheel-separator">日</span>
+                                </div>
+                            </div>
+                            <div class="wheel-picker-group">
+                                <label>时段</label>
+                                <div class="time-period-options">
+                                    <div class="time-period-option" data-period="早上" role="button" tabindex="0" aria-pressed="false">
+                                        <i class="ri-sun-line"></i>
+                                        <span>早上</span>
+                                    </div>
+                                    <div class="time-period-option" data-period="中午" role="button" tabindex="0" aria-pressed="false">
+                                        <i class="ri-sun-foggy-line"></i>
+                                        <span>中午</span>
+                                    </div>
+                                    <div class="time-period-option" data-period="晚上" role="button" tabindex="0" aria-pressed="false">
+                                        <i class="ri-moon-line"></i>
+                                        <span>晚上</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wizard-selection-summary" id="wizard-selection-summary"></div>
+                        <div class="wizard-btn-group">
+                            <button class="primary-btn wizard-next-btn" data-next="2">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 第二步：地点 -->
+                    <div class="wizard-step hidden" id="wizard-step-2">
+                        <h2>这件事发生在什么地点？</h2>
+                        <input type="text" id="wizard-location" class="wizard-input" placeholder="例如：公司办公室 / 家里卧室" autocomplete="off" />
+                        <div class="wizard-btn-group">
+                            <button class="back-btn wizard-back-btn" data-back="1"><i class="ri-arrow-left-line"></i> 上一步</button>
+                            <button class="primary-btn wizard-next-btn" data-next="3">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 第三步：人物 -->
+                    <div class="wizard-step hidden" id="wizard-step-3">
+                        <h2>当时和谁在一起？</h2>
+                        <input type="text" id="wizard-people" class="wizard-input" placeholder="例如：和同事 / 只有自己" autocomplete="off" />
+                        <div class="wizard-btn-group">
+                            <button class="back-btn wizard-back-btn" data-back="2"><i class="ri-arrow-left-line"></i> 上一步</button>
+                            <button class="primary-btn wizard-next-btn" data-next="4">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 第四步：事件 -->
+                    <div class="wizard-step hidden" id="wizard-step-4">
+                        <h2>当时你在做什么？</h2>
+                        <input type="text" id="wizard-action" class="wizard-input" placeholder="例如：加班工作 / 躺着发呆" autocomplete="off" />
+                        <div class="wizard-btn-group">
+                            <button class="back-btn wizard-back-btn" data-back="3"><i class="ri-arrow-left-line"></i> 上一步</button>
+                            <button class="primary-btn wizard-next-btn" data-next="5">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 第五步：情绪打分 -->
+                    <div class="wizard-step hidden" id="wizard-step-5">
+                        <h2>当时的情绪是怎样的？</h2>
+                        <div class="scoring-container">
+                            <!-- 喜 -->
+                            <div class="scoring-group" data-dim="joy">
+                                <div class="scoring-title">喜 (愉悦/满足)</div>
+                                <div class="scoring-row">
+                                    <div class="scoring-slider-col">
+                                        <input type="range" class="wheel-score-slider" id="score-joy" min="1" max="10" value="1" />
+                                    </div>
+                                    <div class="scoring-info-col">
+                                        <div class="wheel-score-display">
+                                            <span class="score-value">1</span>
+                                            <span class="score-label">分</span>
+                                        </div>
+                                        <div class="score-desc-text" id="score-joy-desc">麻木 / 平淡，几乎感受不到愉悦</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 怒 -->
+                            <div class="scoring-group" data-dim="anger">
+                                <div class="scoring-title">怒 (愤怒/烦躁)</div>
+                                <div class="scoring-row">
+                                    <div class="scoring-slider-col">
+                                        <input type="range" class="wheel-score-slider" id="score-anger" min="1" max="10" value="1" />
+                                    </div>
+                                    <div class="scoring-info-col">
+                                        <div class="wheel-score-display">
+                                            <span class="score-value">1</span>
+                                            <span class="score-label">分</span>
+                                        </div>
+                                        <div class="score-desc-text" id="score-anger-desc">平和稳定，完全不生气</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 哀 -->
+                            <div class="scoring-group" data-dim="sorrow">
+                                <div class="scoring-title">哀 (悲伤/低落)</div>
+                                <div class="scoring-row">
+                                    <div class="scoring-slider-col">
+                                        <input type="range" class="wheel-score-slider" id="score-sorrow" min="1" max="10" value="1" />
+                                    </div>
+                                    <div class="scoring-info-col">
+                                        <div class="wheel-score-display">
+                                            <span class="score-value">1</span>
+                                            <span class="score-label">分</span>
+                                        </div>
+                                        <div class="score-desc-text" id="score-sorrow-desc">无悲伤，内心安稳</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 惧 -->
+                            <div class="scoring-group" data-dim="fear">
+                                <div class="scoring-title">惧 (焦虑/恐惧)</div>
+                                <div class="scoring-row">
+                                    <div class="scoring-slider-col">
+                                        <input type="range" class="wheel-score-slider" id="score-fear" min="1" max="10" value="1" />
+                                    </div>
+                                    <div class="scoring-info-col">
+                                        <div class="wheel-score-display">
+                                            <span class="score-value">1</span>
+                                            <span class="score-label">分</span>
+                                        </div>
+                                        <div class="score-desc-text" id="score-fear-desc">安心踏实，安全感充足</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wizard-btn-group">
+                            <button class="back-btn wizard-back-btn" data-back="4"><i class="ri-arrow-left-line"></i> 上一步</button>
+                            <button class="primary-btn wizard-next-btn" data-next="result" id="finish-wizard-btn">下一步</button>
+                        </div>
+                    </div>
+
+                    <!-- 第六步：情绪匹配结果 -->
+                    <div class="wizard-step hidden" id="wizard-step-result">
+                        <div class="emotion-result-card">
+                            <h2 class="emotion-result-title">综合情绪：<span id="result-emotion-name" class="emotion-result-name"></span></h2>
+                            <p id="result-emotion-desc" class="emotion-result-desc"></p>
+                            
+                            <div class="generated-summary-box">
+                                <div class="generated-summary-label">已为你生成情绪总结（将作为日记开头）：</div>
+                                <div id="result-generated-summary" class="generated-summary-content"></div>
+                            </div>
+                        </div>
+                        <div class="wizard-btn-group">
+                            <button class="back-btn wizard-back-btn" data-back="5"><i class="ri-arrow-left-line"></i> 上一步</button>
+                            <button class="primary-btn wizard-next-btn" data-next="editor" id="enter-editor-btn">开始记录</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主编辑器区 (初始隐藏) -->
+                <div id="editor-container" class="hidden">
+                    <div class="header-area">
+                        <div class="date-display" id="current-date-display"></div>
+                    </div>
+                    
+                    <div class="editor-area">
+                        <div id="editor-summary-display" class="hidden" style="margin-bottom: 15px; color: var(--text-secondary); font-size: 16px; font-style: italic; border-left: 3px solid var(--border-color); padding-left: 15px;"></div>
+                        <textarea id="diary-editor" placeholder="深夜了，今天有什么想诉说的吗？（内容会自动保存）"></textarea>
+                    </div>
+
+                    <div class="action-area">
+                        <button id="save-diary-btn" class="primary-btn"><i class="ri-save-line"></i> 封存这篇日记</button>
+                    </div>
+
+                    <div class="divider"><span>或者</span></div>
+
+                    <div class="quick-note-area">
+                        <input type="text" id="quick-note-input" placeholder="不想长篇大论？在这里写下一句话emo...">
+                        <button id="save-quick-note-btn"><i class="ri-send-plane-line"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. 时光回响 (历史) 模块 -->
+        <section id="tab-history" class="tab-pane hidden">
+            <div class="history-header">
+                <h2>时光回响</h2>
+                    <div class="search-filter-area">
+                        <input type="text" id="search-input" placeholder="搜索关键词...">
+                    </div>
+                </div>
+
+                <!-- 心情日历 -->
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button id="cal-prev-month" class="cal-nav-btn"><i class="ri-arrow-left-s-line"></i></button>
+                        <h3 id="cal-month-display">2026年5月 / 心情日历</h3>
+                        <button id="cal-next-month" class="cal-nav-btn"><i class="ri-arrow-right-s-line"></i></button>
+                    </div>
+                    <div class="calendar-body">
+                        <div class="calendar-weekdays">
+                            <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+                        </div>
+                        <div id="calendar-grid" class="calendar-grid">
+                            <!-- JS 动态生成日期格子 -->
+                        </div>
+                    </div>
+                    <div class="calendar-summary" id="calendar-summary">
+                        本月最常见心情：加载中...
+                    </div>
+                </div>
+
+                <div id="diary-list" class="diary-list">
+                    <!-- 日记列表由 JS 动态生成 -->
+                </div>
+            </section>
+
+            <!-- 3. 时光邮差模块 -->
+        <section id="tab-healing" class="tab-pane hidden">
+            <h2><i class="ri-send-plane-fill" style="color: #d5c3aa; margin-right: 5px;"></i>时光邮差</h2>
+                
+                <div class="card future-card">
+                    <h3 style="color: #d5c3aa;"><i class="ri-mail-send-line"></i> 给未来的自己</h3>
+                    <p class="desc">写下一句话，设定一个未来的日期，让未来的你收到这份惊喜。</p>
+                    <div class="future-form envelope-form" id="envelope-form">
+                        <div class="envelope-stamp"><i class="ri-mail-star-line"></i></div>
+                        <input type="date" id="future-date" />
+                        <textarea id="future-text" placeholder="想对未来的自己说些什么？"></textarea>
+                        <button id="save-future-btn" class="primary-btn">投递信件 <i class="ri-send-plane-fill"></i></button>
+                    </div>
+                    <div id="future-messages-list" class="future-messages-list">
+                        <!-- 时光机留言列表 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 心事指南模块 -->
+        <section id="tab-edu" class="tab-pane hidden">
+            <!-- 列表视图 -->
+            <div id="edu-list-view">
+                <h2>心事指南</h2>
+                    <div id="edu-card-container" class="edu-card-container">
+                        <!-- 卡片由 JS 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 详情视图 -->
+                <div id="edu-detail-view" class="hidden">
+                    <div class="edu-detail-header">
+                        <button id="edu-back-btn" class="back-btn"><i class="ri-arrow-left-line"></i> 返回</button>
+                    </div>
+                    <div class="edu-detail-content">
+                        <h2 id="edu-detail-title"></h2>
+                        <div id="edu-detail-body"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 我的角落模块 -->
+            <section id="tab-settings" class="tab-pane hidden">
+                <h2>我的角落</h2>
+                
+                <div class="card settings-card">
+                    <h3><i class="ri-lock-password-line"></i> 页面密码锁</h3>
+                    <p class="desc">设置密码后，每次打开网站都需要输入密码。</p>
+                    <div class="password-form">
+                        <div class="password-input-wrapper settings-password-wrapper">
+                            <input type="password" id="new-password" class="password-input" placeholder="输入新密码">
+                            <button type="button" class="toggle-password-btn" data-target="new-password">
+                                <i class="ri-eye-off-line"></i>
+                            </button>
+                        </div>
+                        <button id="set-password-btn">设置密码</button>
+                        <button id="clear-password-btn" class="danger-btn">清除密码</button>
+                    </div>
+                    <p id="password-status" class="status-text"></p>
+                </div>
+
+                <div class="card settings-card">
+                    <h3><i class="ri-database-2-line"></i> 数据管理</h3>
+                    <p class="desc">您的数据仅保存在当前浏览器的本地缓存中。</p>
+                    <div class="data-actions">
+                        <button id="export-data-btn" class="primary-btn"><i class="ri-download-line"></i> 导出所有日记 (TXT)</button>
+                        <button id="clear-data-btn" class="danger-btn"><i class="ri-delete-bin-line"></i> 清空所有数据</button>
+                    </div>
+                </div>
+
+                <div class="card settings-card">
+                    <h3><i class="ri-eye-off-line"></i> 隐私保护提示</h3>
+                    <ul class="privacy-tips">
+                        <li><strong>一键隐藏：</strong> 在任何页面按下 <code>Esc</code> 键，将立即隐藏日记内容并伪装成404页面。再次按下 <code>Esc</code> 恢复。</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="./js/app.js"></script>
+</body>
+</html>
