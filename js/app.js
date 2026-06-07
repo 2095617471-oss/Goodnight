@@ -698,9 +698,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateWizardSelectionSummary() {
         if (!elements.wizardSelectionSummary) return;
 
-        const year = elements.wizardYear?.value;
-        const month = elements.wizardMonth?.value;
-        const day = elements.wizardDay?.value;
+        const year = elements.wizardYear ? elements.wizardYear.value : '';
+        const month = elements.wizardMonth ? elements.wizardMonth.value : '';
+        const day = elements.wizardDay ? elements.wizardDay.value : '';
         const period = state.selectedTimePeriod;
 
         if (!year || !month || !day) {
